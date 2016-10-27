@@ -17,7 +17,7 @@ $ python3 starterbot.py
 ```
 # BOOKMARKS
 
-https://corikachu.github.io/articles/python/python-slack-bot-slacker
+https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
 
 https://corikachu.github.io/articles/python/python-slack-bot-slacker
 
