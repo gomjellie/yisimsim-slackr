@@ -1,4 +1,4 @@
-#!/Users/jacky/Documents/github/webProgramming/slackBot/slackr/bin/python3.5
+#!/Users/jacky/Documents/github/webProgramming/yisimsim/slackr/bin/python3.5
 
 import argparse
 import code

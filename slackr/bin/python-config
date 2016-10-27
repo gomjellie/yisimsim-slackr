@@ -1,4 +1,4 @@
-#!/Users/jacky/Documents/github/webProgramming/slackBot/slackr/bin/python
+#!/Users/jacky/Documents/github/webProgramming/yisimsim/slackr/bin/python
 
 import sys
 import getopt

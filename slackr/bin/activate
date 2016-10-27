@@ -40,7 +40,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="/Users/jacky/Documents/github/webProgramming/slackBot/slackr"
+VIRTUAL_ENV="/Users/jacky/Documents/github/webProgramming/yisimsim/slackr"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
