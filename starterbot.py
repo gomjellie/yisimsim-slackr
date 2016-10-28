@@ -1,5 +1,6 @@
 import os
 import time
+import sqlite3
 from slackclient import SlackClient
 
 # startbot's ID as an environment variable
@@ -41,10 +42,17 @@ def parse_slack_output(slack_rtm_output):
                         output['channel']
     return None, None
 
+
+#~~~~~~~~~~~~~~~~~~MAIN INIT~~~~~~~~~~~~~~~~~~~~~
 if __name__=="__main__":
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
         print("StarterBot connected and running!")
+        con = sqlite3.connect("chat.db")
+        print("chat.db created !")
+        cursor = con.cursor()
+        print("cursor created !")
+        cursor.execute("CREATE TABLE chatlog(Quest text, Ans text)")
         while True:
             command, channel = parse_slack_output(slack_client.rtm_read())
             if command and channel:
