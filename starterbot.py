@@ -27,8 +27,9 @@ def handle_command(command, channel):
     cursor = con.execute("SELECT Quest, Ans FROM chatlog WHERE Quest like \'%%" + command + "%%\' ORDER BY RANDOM() LIMIT 1")
     response = cursor.fetchone()
     if not response:
-    	cursor.execute("INSERT INTO chatlog VALUES('hi', 'hi there')")
-
+    	cursor.execute("INSERT INTO chatlog VALUES('" + command + "', 'what can i say to that?')")
+    else:
+    	response = response[1]
 
     #if command.startswith(EXAMPLE_COMMAND):
         #response = "뭐하라고?"
