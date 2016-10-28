@@ -12,6 +12,11 @@ EXAMPLE_COMMAND = "do"
 
 # instant Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+con = sqlite3.connect("chat.db")
+print("chat.db created !")
+cursor = con.cursor()
+print("cursor created !")
+cursor.execute("CREATE TABLE chatlog(Quest text, Ans text)")
 
 def handle_command(command, channel):
     """
@@ -19,10 +24,14 @@ def handle_command(command, channel):
         are valid commands. If so, then acts on the commands. If not,
         returns back what it needs for clarification.
     """
-    response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
-            "* command with numbers, delimited by spaces."
-    if command.startswith(EXAMPLE_COMMAND):
-        response = "뭐하라고?"
+    cursor = con.execute("SELECT Quest, Ans FROM chatlog WHERE Quest like \'%%" + command + "%%\' ORDER BY RANDOM() LIMIT 1")
+    response = cursor.fetchone()
+    if not response:
+    	cursor.execute("INSERT INTO chatlog VALUES('hi', 'hi there')")
+
+
+    #if command.startswith(EXAMPLE_COMMAND):
+        #response = "뭐하라고?"
     slack_client.api_call("chat.postMessage", channel=channel,
             text=response, as_user=True)
 
@@ -43,16 +52,12 @@ def parse_slack_output(slack_rtm_output):
     return None, None
 
 
+
 #~~~~~~~~~~~~~~~~~~MAIN INIT~~~~~~~~~~~~~~~~~~~~~
 if __name__=="__main__":
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
         print("StarterBot connected and running!")
-        con = sqlite3.connect("chat.db")
-        print("chat.db created !")
-        cursor = con.cursor()
-        print("cursor created !")
-        cursor.execute("CREATE TABLE chatlog(Quest text, Ans text)")
         while True:
             command, channel = parse_slack_output(slack_client.rtm_read())
             if command and channel:
