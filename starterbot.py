@@ -3,6 +3,8 @@ import time
 import sqlite3
 from slackclient import SlackClient
 
+import exportSettings
+
 # startbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
 
@@ -56,6 +58,7 @@ def handle_command(command, channel):
     	cursor.execute("INSERT INTO chatlog VALUES (?,?)", t)
     	response = "i've learned well"
     	isLearning = False;
+    con.commit()
     slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
     
 
