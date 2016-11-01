@@ -10,6 +10,7 @@ import exportSettings
 BOT_ID = os.environ.get("BOT_ID")
 
 # constants
+#AT_BOT = "심심아"
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "/"
 
@@ -26,23 +27,31 @@ isLearning = False
 prevQuest = ''
 
 
+import queue
 import requests
 
+keyQueue = queue.Queue()
+keyQueue.put('b1447f3f-1907-42a2-a9c7-c7b91af21363')
+keyQueue.put('037def59-fda0-46eb-93f4-9fce096f3528')
+
 values = {
-    'key':'037def59-fda0-46eb-93f4-9fce096f3528',
+    'key':keyQueue.get(), #'037def59-fda0-46eb-93f4-9fce096f3528',
     'lc': 'ko', #en
     'ft': '1.0',
     'text': 'your TEXT HERE'
 }
-
-key = '037def59-fda0-46eb-93f4-9fce096f3528'
-query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
+#
+#query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
 url = 'http://sandbox.api.simsimi.com/request.p'
-
-r= requests.get(query + 'do you know kimchi?')
-values['text'] = '뭐해?'
+#
+#r= requests.get(query + 'do you know kimchi?')
+#values['text'] = '뭐해?'
 r = requests.get(url, params = values)
 #print(r.json()['response'])
+
+class DailyQueryLimit(Exception):
+    print("DailyQueryLimit")
+    pass
 
 def handle_command(command, channel, user):
     """
@@ -51,7 +60,6 @@ def handle_command(command, channel, user):
         returns back what it needs for clarification.
     """
 
-    global con
     global isLearning
     global cursor    
     global prevQuest
@@ -91,7 +99,15 @@ def handle_command(command, channel, user):
 #    cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
 #    con.commit()
 #    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
-    slack_client.api_call("chat.postMessage", channel = channel, text = r.json()['response'],\
+
+    ans = r.json().get('response')
+    if not ans:
+        print("DailyQueryLimit")
+        values['key'] = keyQueue.get()
+        r = requests.get(url, params = values)
+        ans = r.json().get('response')
+
+    slack_client.api_call("chat.postMessage", channel = channel, text = ans,\
             as_user=True)
 
 

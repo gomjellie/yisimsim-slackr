@@ -14,4 +14,4 @@ url = 'http://sandbox.api.simsimi.com/request.p'
 r= requests.get(query + 'do you know kimchi?')
 values['text'] = '뭐해?'
 r = requests.get(url, params = values)
-print(r.json()['response'])
+print(r.json().get('response'))
