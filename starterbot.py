@@ -25,6 +25,25 @@ print("cursor created !")
 isLearning = False
 prevQuest = ''
 
+
+import requests
+
+values = {
+    'key':'037def59-fda0-46eb-93f4-9fce096f3528',
+    'lc': 'ko', #en
+    'ft': '1.0',
+    'text': 'your TEXT HERE'
+}
+
+key = '037def59-fda0-46eb-93f4-9fce096f3528'
+query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
+url = 'http://sandbox.api.simsimi.com/request.p'
+
+r= requests.get(query + 'do you know kimchi?')
+values['text'] = '뭐해?'
+r = requests.get(url, params = values)
+#print(r.json()['response'])
+
 def handle_command(command, channel, user):
     """
         Receives commands directed at the bot and determines if they
@@ -36,40 +55,44 @@ def handle_command(command, channel, user):
     global isLearning
     global cursor    
     global prevQuest
-
-    if not isLearning:
-        print("if not isLearning")
-        con.execute("INSERT INTO chatlog VALUES (?,?,?)", (command, 'LEARNING', user))
-        cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (command,))
-        response = cursor.fetchone()
-        if not response:
-            print("if not response")
-
-            prevQuest = command
-            response = 'what can i say to ' + command + ' ?'
-            isLearning = True
-        else:
-            if response[1] == 'LEARNING':
-            	response = 'what could i response to ' + command + ' ?'
-            	isLearning = True
-            	prevQuest = command
-            else :
-                response = response[1]
-                isLearning = False;
-        #if command.startswith(EXAMPLE_COMMAND):
-            #response = "뭐하라고?"
-        
-    else: #if isLearning == True
-    	print("isLearning == True")
-    	t = (prevQuest, command, user)
-    	#cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
-    	cursor.execute("INSERT INTO chatlog VALUES (?,?,?)", t)
-    	response = "i've learned well"
-    	isLearning = False;
-    cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
-    con.commit()
-    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+    values['text'] = command
+    r = requests.get(url, params = values)
     
+#
+#    if not isLearning:
+#        print("if not isLearning")
+#        con.execute("INSERT INTO chatlog VALUES (?,?,?)", (command, 'LEARNING', user))
+#        cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (command,))
+#        response = cursor.fetchone()
+#        if not response:
+#            print("if not response")
+#
+#            prevQuest = command
+#            response = 'what can i say to ' + command + ' ?'
+#            isLearning = True
+#        else:
+#            if response[1] == 'LEARNING':
+#            	response = 'what could i response to ' + command + ' ?'
+#            	isLearning = True
+#            	prevQuest = command
+#            else :
+#                response = response[1]
+#                isLearning = False;
+#        #if command.startswith(EXAMPLE_COMMAND):
+#            #response = "뭐하라고?"
+#        
+#    else: #if isLearning == True
+#    	print("isLearning == True")
+#    	t = (prevQuest, command, user)
+#    	#cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
+#    	cursor.execute("INSERT INTO chatlog VALUES (?,?,?)", t)
+#    	response = "i've learned well"
+#    	isLearning = False;
+#    cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
+#    con.commit()
+#    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+    slack_client.api_call("chat.postMessage", channel = channel, text = r.json()['response'],\
+            as_user=True)
 
 
 

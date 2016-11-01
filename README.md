@@ -1,7 +1,7 @@
 # yisimsim-slackr
 말대꾸하는 슬랙봇짜식 ~
 
-# ORIGINAL ANDROID CODE
+# ORIGINAL ANDROID SOURCE
 
 https://github.com/gomjellie/YiSimSim
 
@@ -16,4 +16,9 @@ $ python3 starterbot.py
 https://www.fullstackpython.com/blog/build-first-slack-bot-python.html
 
 https://corikachu.github.io/articles/python/python-slack-bot-slacker
+
+http://docs.python-requests.org/en/master/user/quickstart/
+
+http://cpuu.postype.com/post/166917/
+
 
