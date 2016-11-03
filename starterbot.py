@@ -1,6 +1,8 @@
 import os
 import time
 import sqlite3
+import queue
+import requests
 from slackclient import SlackClient
 
 # export BOT_ID and SLACK_BOT_TOKEN
@@ -10,48 +12,47 @@ import exportSettings
 BOT_ID = os.environ.get("BOT_ID")
 
 # constants
-#AT_BOT = "심심아"
+# AT_BOT = "심심아"
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "/"
 
 # instant Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
-#prepare db stuff
+# prepare db stuff
 con = sqlite3.connect("chat.db")
 print("chat.db created !")
 cursor = con.cursor()
 print("cursor created !")
-#cursor.execute("CREATE TABLE chatlog(Quest text, Ans text, Usr text)")
+# cursor.execute("CREATE TABLE chatlog(Quest text, Ans text, Usr text)")
 isLearning = False
 prevQuest = ''
 
-
-import queue
-import requests
-
-keyQueue = queue.Queue()
-keyQueue.put('b1447f3f-1907-42a2-a9c7-c7b91af21363')
+keyQueue = queue.Queue(2)
 keyQueue.put('037def59-fda0-46eb-93f4-9fce096f3528')
+keyQueue.put('b1447f3f-1907-42a2-a9c7-c7b91af21363')
 
 values = {
-    'key':keyQueue.get(), #'037def59-fda0-46eb-93f4-9fce096f3528',
-    'lc': 'ko', #en
+    'key': keyQueue.get(),  # '037def59-fda0-46eb-93f4-9fce096f3528',
+    'lc': 'ko',  # en
     'ft': '1.0',
     'text': 'your TEXT HERE'
 }
 #
-#query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
+# query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
 url = 'http://sandbox.api.simsimi.com/request.p'
 #
-#r= requests.get(query + 'do you know kimchi?')
-#values['text'] = '뭐해?'
-r = requests.get(url, params = values)
-#print(r.json()['response'])
+# r= requests.get(query + 'do you know kimchi?')
+# values['text'] = '뭐해?'
+r = requests.get(url, params=values)
+
+
+# print(r.json()['response'])
 
 class DailyQueryLimit(Exception):
     print("DailyQueryLimit")
     pass
+
 
 def handle_command(command, channel, user):
     """
@@ -61,55 +62,59 @@ def handle_command(command, channel, user):
     """
 
     global isLearning
-    global cursor    
+    global cursor
     global prevQuest
     values['text'] = command
-    r = requests.get(url, params = values)
-    
-#
-#    if not isLearning:
-#        print("if not isLearning")
-#        con.execute("INSERT INTO chatlog VALUES (?,?,?)", (command, 'LEARNING', user))
-#        cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (command,))
-#        response = cursor.fetchone()
-#        if not response:
-#            print("if not response")
-#
-#            prevQuest = command
-#            response = 'what can i say to ' + command + ' ?'
-#            isLearning = True
-#        else:
-#            if response[1] == 'LEARNING':
-#            	response = 'what could i response to ' + command + ' ?'
-#            	isLearning = True
-#            	prevQuest = command
-#            else :
-#                response = response[1]
-#                isLearning = False;
-#        #if command.startswith(EXAMPLE_COMMAND):
-#            #response = "뭐하라고?"
-#        
-#    else: #if isLearning == True
-#    	print("isLearning == True")
-#    	t = (prevQuest, command, user)
-#    	#cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
-#    	cursor.execute("INSERT INTO chatlog VALUES (?,?,?)", t)
-#    	response = "i've learned well"
-#    	isLearning = False;
-#    cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
-#    con.commit()
-#    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+    r = requests.get(url, params=values)
+
+    #
+    #    if not isLearning:
+    #        print("if not isLearning")
+    #        con.execute("INSERT INTO chatlog VALUES (?,?,?)", (command, 'LEARNING', user))
+    #        cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (command,))
+    #        response = cursor.fetchone()
+    #        if not response:
+    #            print("if not response")
+    #
+    #            prevQuest = command
+    #            response = 'what can i say to ' + command + ' ?'
+    #            isLearning = True
+    #        else:
+    #            if response[1] == 'LEARNING':
+    #            	response = 'what could i response to ' + command + ' ?'
+    #            	isLearning = True
+    #            	prevQuest = command
+    #            else :
+    #                response = response[1]
+    #                isLearning = False;
+    #        #if command.startswith(EXAMPLE_COMMAND):
+    #            #response = "뭐하라고?"
+    #
+    #    else: #if isLearning == True
+    #    	print("isLearning == True")
+    #    	t = (prevQuest, command, user)
+    #    	#cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
+    #    	cursor.execute("INSERT INTO chatlog VALUES (?,?,?)", t)
+    #    	response = "i've learned well"
+    #    	isLearning = False;
+    #    cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
+    #    con.commit()
+    #    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
+
 
     ans = r.json().get('response')
     if not ans:
         print("DailyQueryLimit")
-        values['key'] = keyQueue.get()
-        r = requests.get(url, params = values)
-        ans = r.json().get('response')
+        if keyQueue.empty():
+            print("queue is Empty")
+            ans = "queue is Empty"
+        else:
+            values['key'] = keyQueue.get()
+            r = requests.get(url, params=values)
+            ans = r.json().get('response')
 
-    slack_client.api_call("chat.postMessage", channel = channel, text = ans,\
-            as_user=True)
-
+    slack_client.api_call("chat.postMessage", channel=channel, text=ans, \
+                          as_user=True)
 
 
 def parse_slack_output(slack_rtm_output):
@@ -135,16 +140,15 @@ def parse_slack_output(slack_rtm_output):
     return None, None, None
 
 
-
-#~~~~~~~~~~~~~~~~~~MAIN INIT~~~~~~~~~~~~~~~~~~~~~
-if __name__=="__main__":
-    READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
+# ~~~~~~~~~~~~~~~~~~MAIN INIT~~~~~~~~~~~~~~~~~~~~~
+if __name__ == "__main__":
+    READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
         print("StarterBot connected and running!")
         while True:
             command, channel, user = parse_slack_output(slack_client.rtm_read())
             if command and channel and user:
                 handle_command(command, channel, user)
-            time.sleep(READ_WEBSOCKET_DELAY/2)
+            time.sleep(READ_WEBSOCKET_DELAY / 2)
         else:
             print("Connection failed. Invalid Slack token or bot ID?")
