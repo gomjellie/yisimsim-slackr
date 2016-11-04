@@ -55,6 +55,8 @@ class DailyQueryLimit(Exception):
 
 
 def handle_command(command, channel, user):
+	print('starts with /')
+def handle_chat(command, channel, user):
     """
         Receives commands directed at the bot and determines if they
         are valid commands. If so, then acts on the commands. If not,
@@ -148,7 +150,10 @@ if __name__ == "__main__":
         while True:
             command, channel, user = parse_slack_output(slack_client.rtm_read())
             if command and channel and user:
-                handle_command(command, channel, user)
+            	if command.startswith('/'):
+            		handle_command(command, channel, user)
+            	else:
+                    handle_chat(command, channel, user)
             time.sleep(READ_WEBSOCKET_DELAY / 2)
         else:
             print("Connection failed. Invalid Slack token or bot ID?")
