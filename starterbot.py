@@ -56,6 +56,14 @@ class DailyQueryLimit(Exception):
 
 def handle_command(command, channel, user):
 	print('starts with /')
+	cmd = command.split(' ')[0].split('/')[1]
+	print('cmd is ' + cmd)
+	arg = command.split('\"')[1].strip().lower(), command.split('\"')[3].strip().lower() #인자가 1개 밖에 없는 상황이면 팅김
+	print(arg)
+	if arg[0] == 'learn':
+		print("option is learning")
+
+	
 def handle_chat(command, channel, user):
     """
         Receives commands directed at the bot and determines if they
@@ -117,7 +125,6 @@ def handle_chat(command, channel, user):
 
     slack_client.api_call("chat.postMessage", channel=channel, text=ans, \
                           as_user=True)
-
 
 def parse_slack_output(slack_rtm_output):
     """
