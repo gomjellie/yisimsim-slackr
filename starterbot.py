@@ -53,17 +53,31 @@ class DailyQueryLimit(Exception):
     print("DailyQueryLimit")
     pass
 
+def teach(quest, ans, usr):
+    cursor = con.cursor()
+    con.execute("INSERT INTO chatlog VALUES (?,?,?)", (quest, ans, usr))
+
+def get_ans(quest):
+    cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
+    resp = cursor.fetchone()[1]
+    return resp
+
 
 def handle_command(command, channel, user):
-	print('starts with /')
-	cmd = command.split(' ')[0].split('/')[1]
-	print('cmd is ' + cmd)
-	arg = command.split('\"')[1].strip().lower(), command.split('\"')[3].strip().lower() #인자가 1개 밖에 없는 상황이면 팅김
-	print(arg)
-	if arg[0] == 'learn':
-		print("option is learning")
+    print('starts with /')
+    cmd = command.split(' ')[0].split('/')[1]
+    print('cmd is ' + cmd)
+    print(command.split('\"'))
+    print("command splited with \ length " , len(command.split('\"')))
+    if len(command.split('\"')) == 5:
+        arg = command.split('\"')[1].strip().lower(), command.split('\"')[3].strip().lower() #인자가 1개 밖에 없는 상황이면 팅김
+        print(arg)
+        if arg[0] == 'learn':
+            print("option is learning")
+    else:
+        print('syntax error')
 
-	
+
 def handle_chat(command, channel, user):
     """
         Receives commands directed at the bot and determines if they
@@ -157,9 +171,9 @@ if __name__ == "__main__":
         while True:
             command, channel, user = parse_slack_output(slack_client.rtm_read())
             if command and channel and user:
-            	if command.startswith('/'):
-            		handle_command(command, channel, user)
-            	else:
+                if command.startswith('/'):
+                    handle_command(command, channel, user)
+                else:
                     handle_chat(command, channel, user)
             time.sleep(READ_WEBSOCKET_DELAY / 2)
         else:
