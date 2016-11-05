@@ -1,5 +1,5 @@
 # yisimsim-slackr
-말대꾸하는 슬랙봇짜식 ~
+:squirrel:말대꾸하는 슬랙봇짜식
 
 # ORIGINAL ANDROID SOURCE
 
