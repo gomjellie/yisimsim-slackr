@@ -56,6 +56,7 @@ class DailyQueryLimit(Exception):
 def teach(quest, ans, usr):
     cursor = con.cursor()
     con.execute("INSERT INTO chatlog VALUES (?,?,?)", (quest, ans, usr))
+    con.commit()
 
 def get_ans(quest):
     cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
@@ -67,15 +68,20 @@ def handle_command(command, channel, user):
     print('starts with /')
     cmd = command.split(' ')[0].split('/')[1]
     print('cmd is ' + cmd)
-    print(command.split('\"'))
-    print("command splited with \ length " , len(command.split('\"')))
     if len(command.split('\"')) == 5:
         arg = command.split('\"')[1].strip().lower(), command.split('\"')[3].strip().lower() #인자가 1개 밖에 없는 상황이면 팅김
-        print(arg)
-        if arg[0] == 'learn':
-            print("option is learning")
+        print('arg is ' , arg)
+        if cmd == 'learn':
+            teach(arg[0], arg[1], user)
+            ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Added'
+        else:
+            ans = 'i dont know that command yet'
     else:
-        print('syntax error')
+        ans = 'expected 2 args  \nyou can get helps in --help option'
+
+    slack_client.api_call("chat.postMessage", channel=channel, text=ans, \
+            as_user=True)
+
 
 
 def handle_chat(command, channel, user):
@@ -137,6 +143,7 @@ def handle_chat(command, channel, user):
             r = requests.get(url, params=values)
             ans = r.json().get('response')
 
+    teach(command, ans, user)
     slack_client.api_call("chat.postMessage", channel=channel, text=ans, \
                           as_user=True)
 
@@ -162,8 +169,6 @@ def parse_slack_output(slack_rtm_output):
                         output['channel'], output['user'])
     return None, None, None
 
-
-# ~~~~~~~~~~~~~~~~~~MAIN INIT~~~~~~~~~~~~~~~~~~~~~
 if __name__ == "__main__":
     READ_WEBSOCKET_DELAY = 1  # 1 second delay between reading from firehose
     if slack_client.rtm_connect():
