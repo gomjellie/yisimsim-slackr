@@ -71,9 +71,9 @@ def handle_command(command, channel, user):
     if len(command.split('\"')) == 5:
         arg = command.split('\"')[1].strip().lower(), command.split('\"')[3].strip().lower() #인자가 1개 밖에 없는 상황이면 팅김
         print('arg is ' , arg)
-        if cmd == 'learn':
+        if cmd == 'teach':
             teach(arg[0], arg[1], user)
-            ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Added'
+            ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Added to chatlog.db'
         else:
             ans = 'i dont know that command yet'
     else:
