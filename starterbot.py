@@ -25,8 +25,6 @@ print("chat.db created !")
 cursor = con.cursor()
 print("cursor created !")
 # cursor.execute("CREATE TABLE chatlog(Quest text, Ans text, Usr text)")
-isLearning = False
-prevQuest = ''
 
 keyQueue = queue.Queue(2)
 keyQueue.put('037def59-fda0-46eb-93f4-9fce096f3528')
@@ -38,31 +36,24 @@ values = {
     'ft': '1.0',
     'text': 'your TEXT HERE'
 }
-#
+
 # query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
 url = 'http://sandbox.api.simsimi.com/request.p'
-#
-# r= requests.get(query + 'do you know kimchi?')
-# values['text'] = '뭐해?'
-r = requests.get(url, params=values)
-
-
-# print(r.json()['response'])
-
-class DailyQueryLimit(Exception):
-    print("DailyQueryLimit")
-    pass
 
 def teach(quest, ans, usr):
     cursor = con.cursor()
     con.execute("INSERT INTO chatlog VALUES (?,?,?)", (quest, ans, usr))
     con.commit()
 
+def delete(quest, ans, usr):
+    cursor = con.cursor()
+    cursor.execute("DELETE FROM chatlog WHERE Quest = ? AND Ans = ? ", (quest,ans))
+    con.commit()
+
 def get_ans(quest):
     cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
     resp = cursor.fetchone()[1]
     return resp
-
 
 def handle_command(command, channel, user):
     print('starts with /')
@@ -74,6 +65,9 @@ def handle_command(command, channel, user):
         if cmd == 'teach':
             teach(arg[0], arg[1], user)
             ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Added to chatlog.db'
+        elif cmd == 'delete':
+            delete(arg[0], arg[1], user)
+            ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Deleted from chatlog.db'
         else:
             ans = 'i dont know that command yet'
     else:
@@ -82,8 +76,6 @@ def handle_command(command, channel, user):
     slack_client.api_call("chat.postMessage", channel=channel, text=ans, \
             as_user=True)
 
-
-
 def handle_chat(command, channel, user):
     """
         Receives commands directed at the bot and determines if they
@@ -91,9 +83,6 @@ def handle_chat(command, channel, user):
         returns back what it needs for clarification.
     """
 
-    global isLearning
-    global cursor
-    global prevQuest
     values['text'] = command
     r = requests.get(url, params=values)
 
