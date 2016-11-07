@@ -62,11 +62,11 @@ def get_ans(quest):
 
     """
     cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
-    resp = cursor.fetchone()[1]
+    resp = cursor.fetchone()
     if resp is None:
     	return None
     else :
-    	return resp
+    	return resp[1]
 
 def handle_command(command, channel, user):
     """
@@ -103,17 +103,20 @@ def handle_chat(command, channel, user):
     values['text'] = command
     r = requests.get(url, params=values)
 
-    ans = r.json().get('response')
+    ans = get_ans(command)
     if not ans:
-        print("DailyQueryLimit")
-        if keyQueue.empty():
-            print("queue is Empty")
-            ans = "queue is Empty"
-        else:
-            values['key'] = keyQueue.get()
-            print(values['key'])
-            r = requests.get(url, params=values)
-            ans = r.json().get('response')
+        ans = r.json().get('response')
+
+        if not ans:
+            print("DailyQueryLimit")
+            if keyQueue.empty():
+                print("queue is Empty")
+                ans = "queue is Empty"
+            else:
+                values['key'] = keyQueue.get()
+                print(values['key'])
+                r = requests.get(url, params=values)
+                ans = r.json().get('response')
 
     teach(command, ans, user)
     slack_client.api_call("chat.postMessage", channel=channel, text='<@' + user + '> ' + ans, \
