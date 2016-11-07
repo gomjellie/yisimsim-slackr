@@ -14,16 +14,13 @@ BOT_ID = os.environ.get("BOT_ID")
 # constants
 # AT_BOT = "심심아"
 AT_BOT = "<@" + BOT_ID + ">"
-EXAMPLE_COMMAND = "/"
 
 # instant Slack & Twilio clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 
 # prepare db stuff
 con = sqlite3.connect("chat.db")
-print("chat.db created !")
 cursor = con.cursor()
-print("cursor created !")
 # cursor.execute("CREATE TABLE chatlog(Quest text, Ans text, Usr text)")
 
 keyQueue = queue.Queue(2)
@@ -53,7 +50,10 @@ def delete(quest, ans, usr):
 def get_ans(quest):
     cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
     resp = cursor.fetchone()[1]
-    return resp
+    if resp is None:
+    	return None
+    else :
+    	return resp
 
 def handle_command(command, channel, user):
     print('starts with /')
@@ -64,10 +64,10 @@ def handle_command(command, channel, user):
         print('arg is ' , arg)
         if cmd == 'teach':
             teach(arg[0], arg[1], user)
-            ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Added to chatlog.db'
+            ans = 'Q: ' + arg[0] + ' A: ' + arg[1] + 'Added to chatlog.db'
         elif cmd == 'delete':
             delete(arg[0], arg[1], user)
-            ans = 'Q: ' + arg[0] + 'A: ' + arg[1] + 'Deleted from chatlog.db'
+            ans = 'Q: ' + arg[0] + ' A: ' + arg[1] + 'Deleted from chatlog.db'
         else:
             ans = 'i dont know that command yet'
     else:
@@ -86,41 +86,6 @@ def handle_chat(command, channel, user):
     values['text'] = command
     r = requests.get(url, params=values)
 
-    #
-    #    if not isLearning:
-    #        print("if not isLearning")
-    #        con.execute("INSERT INTO chatlog VALUES (?,?,?)", (command, 'LEARNING', user))
-    #        cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (command,))
-    #        response = cursor.fetchone()
-    #        if not response:
-    #            print("if not response")
-    #
-    #            prevQuest = command
-    #            response = 'what can i say to ' + command + ' ?'
-    #            isLearning = True
-    #        else:
-    #            if response[1] == 'LEARNING':
-    #            	response = 'what could i response to ' + command + ' ?'
-    #            	isLearning = True
-    #            	prevQuest = command
-    #            else :
-    #                response = response[1]
-    #                isLearning = False;
-    #        #if command.startswith(EXAMPLE_COMMAND):
-    #            #response = "뭐하라고?"
-    #
-    #    else: #if isLearning == True
-    #    	print("isLearning == True")
-    #    	t = (prevQuest, command, user)
-    #    	#cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
-    #    	cursor.execute("INSERT INTO chatlog VALUES (?,?,?)", t)
-    #    	response = "i've learned well"
-    #    	isLearning = False;
-    #    cursor.execute("DELETE FROM chatlog WHERE Ans=?", ('LEARNING',))
-    #    con.commit()
-    #    slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
-
-
     ans = r.json().get('response')
     if not ans:
         print("DailyQueryLimit")
@@ -129,6 +94,7 @@ def handle_chat(command, channel, user):
             ans = "queue is Empty"
         else:
             values['key'] = keyQueue.get()
+            print(values['key'])
             r = requests.get(url, params=values)
             ans = r.json().get('response')
 
@@ -169,6 +135,6 @@ if __name__ == "__main__":
                     handle_command(command, channel, user)
                 else:
                     handle_chat(command, channel, user)
-            time.sleep(READ_WEBSOCKET_DELAY / 2)
+            time.sleep(READ_WEBSOCKET_DELAY)
         else:
             print("Connection failed. Invalid Slack token or bot ID?")
