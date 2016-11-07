@@ -27,20 +27,16 @@ keyQueue.put('037def59-fda0-46eb-93f4-9fce096f3528')
 keyQueue.put('b1447f3f-1907-42a2-a9c7-c7b91af21363')
 
 class ActivatedID():
-    def __init__(self):
-        self.activated_id = {}
-    def __del__(self):
-    	del self.activated_id
-    def is_activated(self, usr_id):
-        if self.activated_id.get(usr_id) == True:
+    activated_id = {}
+    def is_activated(usr_id):
+        if ActivatedID.activated_id.get(usr_id) == True:
             return True
         else:
             return False
-    def activate(self, usr_id):
-    	self.activated_id[usr_id] = True
-    def deactivate(self, usr_id):
-    	del self.activated_id[usr_id]
-activated_id = ActivatedID()
+    def activate(usr_id):
+    	ActivatedID.activated_id[usr_id] = True
+    def deactivate(usr_id):
+    	del ActivatedID.activated_id[usr_id]
 
 values = {
     'key': keyQueue.get(),  # '037def59-fda0-46eb-93f4-9fce096f3528',
@@ -104,10 +100,10 @@ def handle_command(command, channel, user):
             ans = 'i dont know that command yet'
     elif len(command.split('\"')) == 1:
         if cmd == 'activate':
-            activated_id.activate(user)
+            ActivatedID.activate(user)
             ans = 'you\'ve activated'
         elif cmd == 'deactivate':
-            activated_id.deactivate(user)
+            ActivatedID.deactivate(user)
             ans = 'you\'ve de activated'
         else:
             ans = 'i dont know that command yet'
@@ -166,7 +162,7 @@ def parse_slack_output(slack_rtm_output):
                 """
                 return (output['text'].split(AT_BOT)[1].strip().lower(), \
                         output['channel'], output['user'])
-            elif output and 'text' in output and 'user' in output and activated_id.is_activated(output['user']):
+            elif output and 'text' in output and 'user' in output and ActivatedID.is_activated(output['user']):
             	print(output)
             	return output['text'], output['channel'], output['user']
     return None, None, None
