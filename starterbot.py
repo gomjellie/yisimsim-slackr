@@ -21,7 +21,7 @@ slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 # prepare db stuff
 con = sqlite3.connect("chat.db")
 cursor = con.cursor()
-# cursor.execute("CREATE TABLE chatlog(Quest text, Ans text, Usr text)")
+# cursor.execute("CREATE TABLE chatlog(Quest text, Ans text, Usr text)") 이 주석은 절대 지우지마
 
 keyQueue = queue.Queue(2)
 keyQueue.put('037def59-fda0-46eb-93f4-9fce096f3528')
@@ -38,16 +38,29 @@ values = {
 url = 'http://sandbox.api.simsimi.com/request.p'
 
 def teach(quest, ans, usr):
+    """
+    quest, ans, usr required
+
+    """
     cursor = con.cursor()
     con.execute("INSERT INTO chatlog VALUES (?,?,?)", (quest, ans, usr))
     con.commit()
 
 def delete(quest, ans, usr):
+    """
+    delete Quest = quest AND Ans = ans
+    doesn't consider usrData
+    """
     cursor = con.cursor()
     cursor.execute("DELETE FROM chatlog WHERE Quest = ? AND Ans = ? ", (quest,ans))
     con.commit()
 
 def get_ans(quest):
+    """
+    if it doesn't have profit data then returns None
+    else if returns profit response
+
+    """
     cursor = con.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
     resp = cursor.fetchone()[1]
     if resp is None:
@@ -56,6 +69,10 @@ def get_ans(quest):
     	return resp
 
 def handle_command(command, channel, user):
+    """
+    command must starts with / and have args braced with " 
+
+    """
     print('starts with /')
     cmd = command.split(' ')[0].split('/')[1]
     print('cmd is ' + cmd)
@@ -78,9 +95,9 @@ def handle_command(command, channel, user):
 
 def handle_chat(command, channel, user):
     """
-        Receives commands directed at the bot and determines if they
-        are valid commands. If so, then acts on the commands. If not,
-        returns back what it needs for clarification.
+    Receives commands directed at the bot and determines if they
+    are valid commands. If so, then acts on the commands. If not,
+    returns back what it needs for clarification.
     """
 
     values['text'] = command
@@ -99,7 +116,7 @@ def handle_chat(command, channel, user):
             ans = r.json().get('response')
 
     teach(command, ans, user)
-    slack_client.api_call("chat.postMessage", channel=channel, text=ans, \
+    slack_client.api_call("chat.postMessage", channel=channel, text='<@' + user + '> ' + ans, \
                           as_user=True)
 
 def parse_slack_output(slack_rtm_output):
