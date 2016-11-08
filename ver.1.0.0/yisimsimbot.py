@@ -81,7 +81,7 @@ def get_ans(quest):
 
 def handle_command(command, channel, user):
     """
-    command must starts with / and have args braced with " 
+    command must starts with / and have args braced with "
 
     """
     print('starts with /')
@@ -136,8 +136,11 @@ def handle_chat(command, channel, user):
                 values['key'] = keyQueue.get()
                 print(values['key'])
                 r = requests.get(url, params=values)
+                print("r: ")
+                print(r)
                 ans = r.json().get('response')
-
+                print("ans: ")
+                print(ans)
     teach(command, ans, user)
     slack_client.api_call("chat.postMessage", channel=channel, text='<@' + user + '> ' + ans, \
                           as_user=True)

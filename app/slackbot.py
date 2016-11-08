@@ -1,7 +1,7 @@
 from slackclient import SlackClient
 
 class slackbot:
-      def __init__(self,token, bot_id, read_delay):
+    def __init__(self,token, bot_id, read_delay):
         #self.bot_id=str()
         #hmm
         READ_WEBSOCKET_DELAY=read_delay

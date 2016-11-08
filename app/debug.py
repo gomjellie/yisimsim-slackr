@@ -14,5 +14,5 @@ class debug:
         if mode == "c":
             print (text)
         else:
-            with open(filepath+'/'filename,'a') as f:
+            with open(filepath+'/'+filename,'a') as f:
                 f.write(text)
