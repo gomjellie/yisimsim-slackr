@@ -12,7 +12,6 @@ class yisimsim(slackbot):
         super(yisimsim,self).__init__(token, bot_id, read_delay)
         self.con = sqlite3.connect("chat.db")
         self.cursor = self.con.cursor()
-        self.simsimi=simsimi_api()
 
     def __del__(self):
         self.con.commit()
@@ -77,17 +76,17 @@ class yisimsim(slackbot):
         response=self.get_ans(quest)
 
         if response is None:
-            response=self.simsimi.get_response(quest)
+            response=simsimi_api.get_response(quest)
 
             if response is None:
                 response="daily query limit"
                 debug.wlog(response)
-                if self.simsimi.is_key_queue_empty():
+                if simsimi_api.is_key_queue_empty():
                     response="queue is empty"
                     debug.wlog(response)
                 else:
-                    debug.wlog(self.simsimi.set_new_key())
-                    response=self.simsimi.get_response(quest)
+                    debug.wlog(simsimi_api.set_new_key())
+                    response=simsimi_api.get_response(quest)
             self.teach(quest, response ,user)
             self.post_msg(channel,"<@"+user+"> "+response)
 
