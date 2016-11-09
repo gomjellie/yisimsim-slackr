@@ -1,5 +1,18 @@
-class debug:
-    def wlog(text, mode='c', filename=None, filepath=None):
+from app.singletone import singletone
+import os
+import logging
+
+class debug(metaclass = singletone):
+    def __init__(self, level=logging.DEBUG):
+        self.logger=logging.getLogger('app')
+        self.logger.addHandler(logging.StreamHandler())
+
+        self.level=level
+        self.logger.setLevel(self.level)
+    def set_logger_level(self,level):
+        self.level=level
+        self.logger.setLevel(self.level)
+    def wlog(self,text, mode='c', filename=None, filepath=None):
         '''
             has 2 modes; console and file
             mode can have 2 values 'c' and 'f' which stands for console and file each
@@ -12,7 +25,12 @@ class debug:
                  ==> appends text to debugginh/master/log.txt
         '''
         if mode == "c":
-            print (text)
+            self.logger.debug(text)
         else:
-            with open(filepath+'/'+filename,'a') as f:
-                f.write(text)
+            if not os.path.exists(filepath):
+                os.mkdir(filepath)
+
+            full_path=filepath+'/'+filename
+
+            self.logger.basicConfig(filename=full_path,level=self.level)
+            self.logger.debug(text)

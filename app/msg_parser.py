@@ -28,7 +28,7 @@ class msg_parser:
                 m=re.match(pattern, rtm_msg['text'])
                 text=m.group("text")
 
-            elif ActivatedID.is_activated(user):
+            elif ActivatedID.get_instance().is_activated(user):
                 text=rtm_msg['text']
 
             #check msg_type (chat vs command vs none)

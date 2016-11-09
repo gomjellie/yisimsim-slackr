@@ -11,7 +11,7 @@ class simsimi_api:
         keyQueue.put(key_list[idx])
 
     values={'key' : keyQueue.get(), 'lc' : 'ko', 'ft' : '1.0', 'text' : 'your TEXT HERE' }
-    debug.wlog(values)
+    debug.get_instance().wlog(values)
     def get_response(text):
         # query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
         api_request_url='http://sandbox.api.simsimi.com/request.p'
@@ -20,13 +20,13 @@ class simsimi_api:
 
         raw_response=requests.get(api_request_url,params=simsimi_api.values)
 
-        debug.wlog("raw response: ")
-        debug.wlog(raw_response)
+        debug.get_instance().wlog("raw response: ")
+        debug.get_instance().wlog(raw_response)
 
         response=raw_response.json().get('response')
 
-        debug.wlog("response: ")
-        debug.wlog(response)
+        debug.get_instance().wlog("response: ")
+        debug.get_instance().wlog(response)
 
         return response
 

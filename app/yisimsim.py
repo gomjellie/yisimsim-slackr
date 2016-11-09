@@ -18,7 +18,7 @@ class yisimsim(slackbot):
         self.con.close()
     def run(self):
         if self.is_rtm_connected():
-            debug.wlog("yisimsim connected and running!")
+            debug.get_instance().wlog("yisimsim connected and running!")
             while True:
                 self.fetch_msg()
                 rtm_msg_list=self.get_msg()
@@ -32,7 +32,7 @@ class yisimsim(slackbot):
                 else:
                     pass
         else:
-            debug.wlog("Connection failed. Invalid Slack token or bot ID?")
+            debug.get_instance().wlog("Connection failed. Invalid Slack token or bot ID?")
     #rename m's
     def handle_command(self, text, channel, user):
         #JUNK is for 쓰레기 구별
@@ -55,17 +55,17 @@ class yisimsim(slackbot):
                     self.teach(m1.group('arg0'), m1.group('arg1'), user)
                     response='Q: ' + m1.group('arg0') + ' A: ' + m1.group('arg1') + ' Added to chatlog.db'
                 elif command == "delete":
-                    debug.wlog("delete")
+                    debug.get_instance().wlog("delete")
                     self.delete(m1.group('arg0'), m1.group('arg1'), user)
                     response= 'Q: ' + m1.group('arg0')+' A: ' +m1.group('arg1')+' Deleted from chatlog.db'
         elif command == "activate" or command == "deactivate":
             if m0.group('args') == JUNK:
-                debug.wlog("args is JUNK")
+                debug.get_instance().wlog("args is JUNK")
                 if command == "activate":
-                    ActivatedID.activate(user)
+                    ActivatedID.get_instance().activate(user)
                     response="you've activated"
                 elif command == "deactivate":
-                    ActivatedID.deactivate(user)
+                    ActivatedID.get_instance().deactivate(user)
                     response="you've deactivated"
         else:
             response="틀린 형식의 명령입니다"
@@ -80,12 +80,12 @@ class yisimsim(slackbot):
 
             if response is None:
                 response="daily query limit"
-                debug.wlog(response)
+                debug.get_instance().wlog(response)
                 if simsimi_api.is_key_queue_empty():
                     response="queue is empty"
-                    debug.wlog(response)
+                    debug.get_instance().wlog(response)
                 else:
-                    debug.wlog(simsimi_api.set_new_key())
+                    debug.get_instance().wlog(simsimi_api.set_new_key())
                     response=simsimi_api.get_response(quest)
             self.teach(quest, response ,user)
             self.post_msg(channel,"<@"+user+"> "+response)
