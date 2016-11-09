@@ -1,11 +1,8 @@
 from app.activated_id import ActivatedID
+from app.singletone import singletone
 import re
 
-class msg_parser:
-    def parse_command_from():
-        pass
-    def parse_qna_from():
-        pass
+class msg_parser(singletone):
     def parse_mandatory_from(rtm_msg_list, at_bot):
         '''
             returns text, channel, user, msg_type(is_chat? is_command?)
