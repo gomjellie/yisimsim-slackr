@@ -29,7 +29,6 @@ class yisimsim(slackbot):
                 if msg_type == "command":
                     self.handle_command(text, channel, user)
                 elif msg_type == "chat":
-                    print(text, channel, user)
                     self.handle_chat(text, channel, user)
                 else:
                     pass

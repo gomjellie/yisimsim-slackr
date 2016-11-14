@@ -15,7 +15,6 @@ class simsimi_api:
     def get_response(text):
         # query = 'http://sandbox.api.simsimi.com/request.p?key=' + key + '&lc=en&ft=1.0&text='
         api_request_url='http://sandbox.api.simsimi.com/request.p'
-        print("quering")
 
         simsimi_api.values['text']=text
 
