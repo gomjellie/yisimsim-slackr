@@ -4,6 +4,7 @@ from app.simsimi_api import simsimi_api
 from app.msg_parser import msg_parser
 from app.activated_id import ActivatedID
 import sqlite3
+import random
 import re
 
 class yisimsim(slackbot):
@@ -28,6 +29,7 @@ class yisimsim(slackbot):
                 if msg_type == "command":
                     self.handle_command(text, channel, user)
                 elif msg_type == "chat":
+                    print(text, channel, user)
                     self.handle_chat(text, channel, user)
                 else:
                     pass
@@ -88,8 +90,12 @@ class yisimsim(slackbot):
                     debug.get_instance().wlog(simsimi_api.set_new_key())
                     response=simsimi_api.get_response(quest)
             self.teach(quest, response ,user)
-            self.post_msg(channel,"<@"+user+"> "+response)
-
+        self.post_msg(channel,"<@"+user+"> "+response)
+        """
+        self.post_msg이거 인덴트 하나 더주면 안됨 
+        db에 이미 있는거 질문하면 대답안하고 멈춤
+        
+        """
 
 
     def teach(self, quest, ans, user):
@@ -101,9 +107,11 @@ class yisimsim(slackbot):
 
         self.cursor.execute("SELECT * FROM chatlog WHERE Quest=? ORDER BY RANDOM() LIMIT 1", (quest,))
         response_list=self.cursor.fetchone()
+        print(response_list)
 
         if response_list is not None:
-            response=response_list[1]
+           # response=response_list[1]
+           response = random.choice([response_list[1], simsimi_api.get_response(quest)])
 
         return response
 
