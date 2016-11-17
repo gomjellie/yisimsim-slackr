@@ -1,6 +1,7 @@
 from app.slackbot import slackbot
 from app.debug import debug
 from app.simsimi_api import simsimi_api
+from app.bus_api import bus_api
 from app.msg_parser import msg_parser
 from app.activated_id import ActivatedID
 import sqlite3
@@ -47,7 +48,7 @@ class yisimsim(slackbot):
 
         command=m0.group('command')
 
-        if command == "teach" or command == "delete":
+        if command == "teach" or command == "delete" or command =='bus':
             pattern=r"\"(?P<arg0>.*)\"\s+\"(?P<arg1>.*)\"\"\""
             m1=re.match(pattern,m0.group('args'))
 
@@ -59,6 +60,7 @@ class yisimsim(slackbot):
                     debug.get_instance().wlog("delete")
                     self.delete(m1.group('arg0'), m1.group('arg1'), user)
                     response= 'Q: ' + m1.group('arg0')+' A: ' +m1.group('arg1')+' Deleted from chatlog.db'
+
         elif command == "activate" or command == "deactivate":
             if m0.group('args') == JUNK:
                 debug.get_instance().wlog("args is JUNK")
