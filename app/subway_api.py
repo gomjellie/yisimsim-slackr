@@ -10,9 +10,14 @@ class subway_api:
 
 
     def get_station_stat(station_name):
-        station_name = urllib.parse.quote(station_name)
+        station_name = urllib.parse.quote(station_name.replace('역', ''))
+#숭실대입구역 -> 숭실대입구 로 변환해야 검색됨
+#문제점 역삼역 같은경우 역삼역 -> 삼 으로 변환됨...!
         res = requests.get(subway_api.station_name_url + '?' + 'statnNm='+station_name.replace('%','%25'))
         jsn = res.json()
+
+        if res.json().get('resultList') is None:
+            return '그런역 없습니다 다른이름으로 검색하세요'
         subway_id = jsn.get('resultList')[0].get('subwayId')
         statn_id = jsn.get('resultList')[0].get('statnId')
 
