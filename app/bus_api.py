@@ -9,7 +9,7 @@ class bus_api:
     url = 'http://bus.go.kr/xmlRequest/getStationByUid.jsp'
 
     def get_station_stat(station_number):
-        res = requests.get(bus_api.url, dict(strBusNumber=13157))
+        res = requests.get(bus_api.url, dict(strBusNumber=station_number))
         soup = BeautifulSoup(res.text, 'html.parser')
         ret = ''
 
