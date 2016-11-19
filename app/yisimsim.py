@@ -41,13 +41,17 @@ class yisimsim(slackbot):
         JUNK='\"\"'
         response=None
 
+        #/(command - only english) (args wrapped with quotes)
         pattern=r'/(?P<command>[a-zA-Z]+)\s*(?P<args>.*)'
 
         #text+JUNK => to always make m not None
+        #example (@yisimsim /activate) > command : activate, args : ""
         m=re.match(pattern, text+JUNK)
         command=m.group('command')
 
         if command == "teach" or command == "delete":
+            #args must be "(any character)"(at least one space)"(any character)"""
+            #last two quote is JUNK
             pattern=r"\"(?P<arg0>.*)\"\s+\"(?P<arg1>.*)\"\"\""
             m2=re.match(pattern,m.group('args'))
 
@@ -62,6 +66,8 @@ class yisimsim(slackbot):
 
         elif command == "bus":
 
+            #args must be "(number)"""
+            #last two quote is JUNK
             pattern=r'\"(?P<arg0>\d*)\"\"\"'
             m1 = re.match(pattern, m.group('args'))
 
@@ -70,7 +76,7 @@ class yisimsim(slackbot):
                 stnNumber = int(m1.group('arg0'))
                 response = bus_api.get_station_stat(stnNumber)
 
-        elif command == "activate" or command == "deactivate":
+        elif command == "activate" or command == "deactivate" or command == "help":
             if m.group('args') == JUNK:
                 debug.get_instance().wlog("args is JUNK")
                 if command == "activate":
@@ -79,6 +85,8 @@ class yisimsim(slackbot):
                 elif command == "deactivate":
                     ActivatedID.get_instance().deactivate(user)
                     response="you've deactivated"
+                elif command == "help":
+                    response = "click the link for help :+1: " + "https://github.com/gomjellie/yisimsim-slackr/wiki"
         else:
             response="틀린 형식의 명령입니다"
 
