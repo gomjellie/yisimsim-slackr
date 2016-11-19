@@ -5,7 +5,9 @@ import requests
 class simsimi_api:
     #여기 좀 별로인 것 같음
     #이 부분 수정
-    key_list=['a34e69e6-90b8-4f5a-81dd-12b504c5a7d6','6022de93-0101-4559-8926-059e498e5367']
+    key_list=['d587ec90-cd1b-4d59-854a-b8afad044dad', 
+            '66c27587-5a16-4920-94ef-fc97de7e53c8'
+            ]
     keyQueue = queue.Queue(len(key_list))
     for idx in range(len(key_list)):
         keyQueue.put(key_list[idx])
