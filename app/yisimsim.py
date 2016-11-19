@@ -41,28 +41,43 @@ class yisimsim(slackbot):
         JUNK='\"\"'
         response=None
 
-        pattern=r'/(?P<command>[a-zA-Z]+)\s*(?P<args>\".*\")'
+        #/(command - only english) (args wrapped with quotes)
+        pattern=r'/(?P<command>[a-zA-Z]+)\s*(?P<args>.*)'
 
-        #text+JUNK => to always make m0 not None
-        m0=re.match(pattern, text+JUNK)
+        #text+JUNK => to always make m not None
+        #example (@yisimsim /activate) > command : activate, args : ""
+        m=re.match(pattern, text+JUNK)
+        command=m.group('command')
 
-        command=m0.group('command')
-
-        if command == "teach" or command == "delete" or command =='bus':
+        if command == "teach" or command == "delete":
+            #args must be "(any character)"(at least one space)"(any character)"""
+            #last two quote is JUNK
             pattern=r"\"(?P<arg0>.*)\"\s+\"(?P<arg1>.*)\"\"\""
-            m1=re.match(pattern,m0.group('args'))
+            m2=re.match(pattern,m.group('args'))
 
-            if m1 is not None:
+            if m2 is not None:
                 if command == "teach":
-                    self.teach(m1.group('arg0'), m1.group('arg1'), user)
-                    response='Q: ' + m1.group('arg0') + ' A: ' + m1.group('arg1') + ' Added to chatlog.db'
+                    self.teach(m2.group('arg0'), m2.group('arg1'), user)
+                    response='Q: ' + m2.group('arg0') + ' A: ' + m2.group('arg1') + ' Added to chatlog.db'
                 elif command == "delete":
                     debug.get_instance().wlog("delete")
-                    self.delete(m1.group('arg0'), m1.group('arg1'), user)
-                    response= 'Q: ' + m1.group('arg0')+' A: ' +m1.group('arg1')+' Deleted from chatlog.db'
+                    self.delete(m2.group('arg0'), m2.group('arg1'), user)
+                    response= 'Q: ' + m2.group('arg0')+' A: ' +m2.group('arg1')+' Deleted from chatlog.db'
 
-        elif command == "activate" or command == "deactivate":
-            if m0.group('args') == JUNK:
+        elif command == "bus":
+
+            #args must be "(number)"""
+            #last two quote is JUNK
+            pattern=r'\"(?P<arg0>\d*)\"\"\"'
+            m1 = re.match(pattern, m.group('args'))
+
+            if m1 is not None:
+
+                stnNumber = int(m1.group('arg0'))
+                response = bus_api.get_station_stat(stnNumber)
+
+        elif command == "activate" or command == "deactivate" or command == "help":
+            if m.group('args') == JUNK:
                 debug.get_instance().wlog("args is JUNK")
                 if command == "activate":
                     ActivatedID.get_instance().activate(user)
@@ -70,6 +85,8 @@ class yisimsim(slackbot):
                 elif command == "deactivate":
                     ActivatedID.get_instance().deactivate(user)
                     response="you've deactivated"
+                elif command == "help":
+                    response = "click the link for help :+1: " + "https://github.com/gomjellie/yisimsim-slackr/wiki"
         else:
             response="틀린 형식의 명령입니다"
 
@@ -93,9 +110,9 @@ class yisimsim(slackbot):
             self.teach(quest, response ,user)
         self.post_msg(channel,"<@"+user+"> "+response)
         """
-        self.post_msg이거 인덴트 하나 더주면 안됨 
+        self.post_msg이거 인덴트 하나 더주면 안됨
         db에 이미 있는거 질문하면 대답안하고 멈춤
-        
+
         """
 
 
