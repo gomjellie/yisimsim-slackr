@@ -2,6 +2,7 @@ from app.slackbot import slackbot
 from app.debug import debug
 from app.simsimi_api import simsimi_api
 from app.bus_api import bus_api
+from app.subway_api import subway_api
 from app.msg_parser import msg_parser
 from app.activated_id import ActivatedID
 import sqlite3
@@ -64,7 +65,7 @@ class yisimsim(slackbot):
                     self.delete(m2.group('arg0'), m2.group('arg1'), user)
                     response= 'Q: ' + m2.group('arg0')+' A: ' +m2.group('arg1')+' Deleted from chatlog.db'
 
-        elif command == "bus":
+        elif command == "bus" or command == "subway":
 
             #args must be "(number)"""
             #last two quote is JUNK
@@ -72,9 +73,13 @@ class yisimsim(slackbot):
             m1 = re.match(pattern, m.group('args'))
 
             if m1 is not None:
+                if command == 'bus':
 
-                stnNumber = int(m1.group('arg0'))
-                response = bus_api.get_station_stat(stnNumber)
+                    stnNumber = int(m1.group('arg0'))
+                    response = bus_api.get_station_stat(stnNumber)
+                elif command == 'subway':
+                    stnNm = str(m1.group('arg0'))
+                    response = subway_api.get_station_stat(stnNm)
 
         elif command == "activate" or command == "deactivate" or command == "help":
             if m.group('args') == JUNK:
