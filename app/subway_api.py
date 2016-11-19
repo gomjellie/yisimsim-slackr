@@ -69,6 +69,8 @@ class subway_api:
 
         ret = jsn.get('resultList2')[0].get('statnNm') + '\n'
         
+        if jsn.get('resultList') is None:
+            return '곧 수정하겠습니다 아직 이부분은 왜안되는지 이유를 모르겠네요'
         for j in range(len(jsn.get('resultList'))):
             ret += '-----------------------\n|'
             ret += jsn.get('resultList')[j].get('trainLineNm') + '\n| '
