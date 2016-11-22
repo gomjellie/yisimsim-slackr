@@ -65,7 +65,7 @@ class yisimsim(slackbot):
                     self.delete(m2.group('arg0'), m2.group('arg1'), user)
                     response= 'Q: ' + m2.group('arg0')+' A: ' +m2.group('arg1')+' Deleted from chatlog.db'
 
-        elif command == "bus" :
+        elif command == "bus":
 
             #args must be "(number)"""
             #last two quote is JUNK
@@ -77,15 +77,21 @@ class yisimsim(slackbot):
                     stnNumber = int(m1.group('arg0'))
                     print(stnNumber)
                     response = bus_api.get_station_stat(stnNumber)
-                
+            else:
+                response = "존재하지 않는 역입니다"
+
         elif command == "subway":
             #args are korean
-            #regExp please
-            if command == 'subway':
+            print(m.group('args'))
+            pattern = r'\"(?P<arg0>[가-힣]*)역\"\"\"'
+            m1 = re.match(pattern, m.group('args'))
+
+            if m1 is not None:
                 stnNm = str(m1.group('arg0'))
                 print (stnNm)
                 response = subway_api.get_station_stat(stnNm)
-
+            else:
+                response = "존재하지 않는 역입니다"
 
         elif command == "activate" or command == "deactivate" or command == "help":
             if m.group('args') == JUNK:
