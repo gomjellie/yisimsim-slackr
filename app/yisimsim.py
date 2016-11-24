@@ -103,7 +103,7 @@ class yisimsim(slackbot):
                     ActivatedID.get_instance().deactivate(user)
                     response="you've deactivated"
                 elif command == "help":
-                    response = "click the link for help :+1: " + "https://github.com/gomjellie/yisimsim-slackr/wiki"
+                    response = "click the link for help :+1: " + "https://karlin13.github.io"
         else:
             response="틀린 형식의 명령입니다"
 
