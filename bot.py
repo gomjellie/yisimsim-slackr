@@ -6,7 +6,7 @@ import exportSettings
 if __name__ == "__main__":
     debug.get_instance().wlog("program started")
 
-    bot=yisimsim(os.environ['SLACK_BOT_TOKEN'], os.environ['BOT_ID'], 1)
+    bot=yisimsim(os.environ['SLACK_BOT_TOKEN'], os.environ['BOT_ID'],os.environ['GOOGLE_TOKEN'], 1)
     debug.get_instance().wlog("bot instance created; bot ready to be run now")
     bot.run()
 

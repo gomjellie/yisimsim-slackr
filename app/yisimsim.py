@@ -5,14 +5,16 @@ from app.bus_api import bus_api
 from app.subway_api import subway_api
 from app.msg_parser import msg_parser
 from app.activated_id import ActivatedID
+from app.translator import translator
 import sqlite3
 import random
 import re
 
 class yisimsim(slackbot):
 
-    def __init__(self, token, bot_id, read_delay):
+    def __init__(self, token, bot_id, google_token, read_delay):
         super(yisimsim,self).__init__(token, bot_id, read_delay)
+        self._translator = translator(google_token)
         self.con = sqlite3.connect("chat.db")
         self.cursor = self.con.cursor()
 
@@ -64,6 +66,31 @@ class yisimsim(slackbot):
                     debug.get_instance().wlog("delete")
                     self.delete(m2.group('arg0'), m2.group('arg1'), user)
                     response= 'Q: ' + m2.group('arg0')+' A: ' +m2.group('arg1')+' Deleted from chatlog.db'
+		
+        elif command == "translate":
+			
+            target_pattern = r'--target\s+(?P<target>.*)\s+\"(?P<arg0>.*)\"\"\"'
+            lang_pattern = r"--lang\"\""
+
+            m1 = re.match(target_pattern, m.group('args'))
+
+            if m1 is not None: 
+				
+				#set which language to translate to
+                if m1.group('target') != '':
+                    target = m1.group('target')
+                else:
+                    target = 'en'
+
+                wannabe_translated = m1.group('arg0')
+                response = self._translator.translate(wannabe_translated, target)
+            else:
+                m1 = re.match(lang_pattern, m.group('args'))
+             
+                if m1 is not None:
+                    response = self._translator.availables() 
+                else:
+                    response = "wrong use of translate command"
 
         elif command == "bus":
 
@@ -154,9 +181,8 @@ class yisimsim(slackbot):
 
         if response_list is not None:
         # response=response_list[1]
-        # 어차피 handle_chat에서 response가 None이면 새로 request 날리니 get_ans에서 날릴 필요 없다고 생각
         # db에서 가져온 response 쓸 확률 높임
-            response = random.choice([response_list[1], response_list[1], None])
+            response = random.choice([response_list[1], response_list[1],simsimi_api.get_response(quest)])
 
         return response
 
