@@ -115,16 +115,24 @@ class yisimsim(slackbot):
         if response is None:
             response=simsimi_api.get_response(quest)
 
-            if response is None:
-                response="daily query limit"
+            # change until valid key pops
+            while response == "Daily Request Limit":
+
                 debug.get_instance().wlog(response)
+
                 if simsimi_api.is_key_queue_empty():
+
                     response="queue is empty"
                     debug.get_instance().wlog(response)
+                    break
+
                 else:
+
                     debug.get_instance().wlog(simsimi_api.set_new_key())
                     response=simsimi_api.get_response(quest)
-            self.teach(quest, response ,user)
+            # 404 뜨면 response가 I don't know what to say 이므로 self.teach 뺀다.
+            if response != "I don't know what to say!":
+                self.teach(quest, response ,user)
         self.post_msg(channel,"<@"+user+"> "+response)
         """
         self.post_msg이거 인덴트 하나 더주면 안됨
@@ -145,8 +153,10 @@ class yisimsim(slackbot):
         print(response_list)
 
         if response_list is not None:
-           # response=response_list[1]
-           response = random.choice([response_list[1], simsimi_api.get_response(quest)])
+        # response=response_list[1]
+        # 어차피 handle_chat에서 response가 None이면 새로 request 날리니 get_ans에서 날릴 필요 없다고 생각
+        # db에서 가져온 response 쓸 확률 높임
+            response = random.choice([response_list[1], response_list[1], None])
 
         return response
 

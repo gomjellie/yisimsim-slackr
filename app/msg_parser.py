@@ -23,7 +23,9 @@ class msg_parser(singletone):
             if (at_bot in rtm_msg['text']):
                 pattern = at_bot + r"\s+(?P<text>.*)"
                 m=re.match(pattern, rtm_msg['text'])
-                text=m.group("text")
+
+                if m is not None:
+                    text=m.group("text")
 
             elif ActivatedID.get_instance().is_activated(user):
                 text=rtm_msg['text']
