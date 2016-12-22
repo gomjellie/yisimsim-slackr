@@ -1,9 +1,10 @@
 # yisimsim-slackr
-:squirrel:말대꾸하는 슬랙봇짜식
+:squirrel:말대꾸하는 슬랙봇
 
-# ORIGINAL ANDROID SOURCE
+# WIKI 
 
-https://github.com/gomjellie/YiSimSim
+https://github.com/gomjellie/yisimsim-slackr/wiki
+
 
 # HOW TO RUN?
 ```js
